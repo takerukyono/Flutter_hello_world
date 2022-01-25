@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'dart:math';
+import 'package:hello_world/PageView/test_page_1.dart';
+import 'package:hello_world/PageView/test_page_2.dart';
+import 'package:hello_world/PageView/test_page_3.dart';
 
 void main() {
   runApp(const MyApp());
@@ -47,69 +51,130 @@ class MyHomePage extends StatefulWidget {
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
+  late AnimationController _animationController;
+  late Animation<double> _animationDouble;
+  final Tween<double> _tweenDouble = Tween(begin: 0.0, end: 200.0);
+  late Animation<Color?> _animationColor;
+  final ColorTween _tweenColor =
+      ColorTween(begin: Colors.green, end: Colors.blue);
+  late Animation _animation;
 
-  void _incrementCounter() {
+  _play() async {
     setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
+      _animationController.forward();
+    });
+  }
+
+  _stop() async {
+    setState(() {
+      _animationController.stop();
+    });
+  }
+
+  _reverse() async {
+    setState(() {
+      _animationController.reverse();
     });
   }
 
   @override
+  void initState() {
+    super.initState();
+    _animationController =
+        AnimationController(vsync: this, duration: const Duration(seconds: 1));
+
+    _animationDouble = _tweenDouble.animate(_animationController);
+    _animationDouble.addListener(() {
+      setState(() {});
+    });
+    _animationColor = _tweenColor.animate(_animationController);
+    _animationColor.addListener(() {
+      setState(() {});
+    });
+    _animation = _animationController.drive(Tween(begin: 0.0, end: 2.0 * pi));
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
     return Scaffold(
       appBar: AppBar(
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
         title: Text(widget.title),
       ),
       body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Invoke "debug painting" (press "p" in the console, choose the
-          // "Toggle Debug Paint" action from the Flutter Inspector in Android
-          // Studio, or the "Toggle Debug Paint" command in Visual Studio Code)
-          // to see the wireframe for each widget.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headline4,
-            ),
-          ],
-        ),
+          // child: Column(
+          //   mainAxisAlignment: MainAxisAlignment.center,
+          //   children: <Widget>[
+          // AnimationContoroller
+
+          // SizeTransition(
+          //   sizeFactor: _animationController,
+          //   child: Center(
+          //     child: SizedBox(
+          //       child: Container(
+          //         color: Colors.green,
+          //       ),
+          //       width: 50,
+          //       height: 50,
+          //     ),
+          //   ),
+          // ),
+
+          // Animation/Tween
+
+          //       Text("AnimationController:${_animationController.value}"),
+          //       Text("AnimationDouble:${_animationDouble.value}"),
+          //       Text("AnimationColor:${_animationColor.value}"),
+          //       SizeTransition(
+          //         sizeFactor: _animationController,
+          //         child: SizedBox(
+          //           child: Center(
+          //             child: SizedBox(
+          //               child: Container(
+          //                 color: _animationColor.value,
+          //               ),
+          //               width: _animationDouble.value,
+          //               height: _animationDouble.value,
+          //             ),
+          //           ),
+          //         ),
+          //       )
+          //     ],
+          //   ),
+          // ),
+
+          // AnimationBuilder
+
+          child: AnimatedBuilder(
+              animation: _animation,
+              builder: (context, _) {
+                return Transform.rotate(
+                    angle: _animation.value,
+                    child: const Icon(Icons.cached, size: 100));
+              })),
+      floatingActionButton: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          FloatingActionButton(
+            onPressed: _play,
+            child: const Icon(Icons.arrow_forward),
+          ),
+          FloatingActionButton(
+            onPressed: _stop,
+            child: const Icon(Icons.pause),
+          ),
+          FloatingActionButton(
+            onPressed: _reverse,
+            child: const Icon(Icons.arrow_back),
+          )
+        ],
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 }
