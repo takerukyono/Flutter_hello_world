@@ -1,6 +1,6 @@
+// ignore_for_file: unused_import, avoid_print
 import 'package:flutter/material.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:hello_world/StatefulWidgetLifeCycle/dummy.dart';
 
 void main() {
   runApp(const MyApp());
@@ -27,16 +27,6 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
       ),
       home: const MyHomePage(title: 'Flutter Demo Home Page'),
-      localizationsDelegates: const [
-        AppLocalizations.delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-      supportedLocales: const [
-        Locale('ja', ''),
-        Locale('en', ''),
-      ],
     );
   }
 }
@@ -60,8 +50,39 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  int _counter = 0;
+  void _incrementCounter() {
+    setState(() {
+      print("call setState");
+      _counter++;
+    });
+    nextpage();
+  }
+
+  void nextpage() async {
+    {
+      await Navigator.of(context)
+          .pushReplacement(MaterialPageRoute(builder: (context) {
+        return DumyPage();
+      }));
+    }
+  }
+
+  @override
+  void initState() {
+    print("call initState");
+    super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    print("call didChangeDependencies");
+    super.didChangeDependencies();
+  }
+
   @override
   Widget build(BuildContext context) {
+    print("call build");
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
@@ -69,19 +90,39 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
+          children: [
+            const Text('You have pushed the button this many times:'),
             Text(
-              AppLocalizations.of(context)!.hello("kyonot"),
-            ),
-            Text(
-              AppLocalizations.of(context)!.allow,
-            ),
-            Text(
-              AppLocalizations.of(context)!.deny,
-            ),
+              '$_counter',
+              key: const Key('counter'),
+              style: Theme.of(context).textTheme.headline4,
+            )
           ],
         ),
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _incrementCounter,
+        tooltip: 'Increment',
+        child: const Icon(Icons.add),
+      ),
     );
+  }
+
+  @override
+  void didUpdateWidget(oldWidget) {
+    print("call didUpdateWidget");
+    super.didUpdateWidget(oldWidget);
+  }
+
+  @override
+  void deactivate() {
+    print("call deactivate");
+    super.deactivate();
+  }
+
+  @override
+  void dispose() {
+    print("call dispose");
+    super.dispose();
   }
 }

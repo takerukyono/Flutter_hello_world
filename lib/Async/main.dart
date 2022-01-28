@@ -1,6 +1,9 @@
+// ignore_for_file: unused_import
+
 import 'package:flutter/material.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:hello_world/Async/async.dart';
+import 'dart:io';
+
 
 void main() {
   runApp(const MyApp());
@@ -27,16 +30,6 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
       ),
       home: const MyHomePage(title: 'Flutter Demo Home Page'),
-      localizationsDelegates: const [
-        AppLocalizations.delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-      supportedLocales: const [
-        Locale('ja', ''),
-        Locale('en', ''),
-      ],
     );
   }
 }
@@ -56,10 +49,21 @@ class MyHomePage extends StatefulWidget {
   final String title;
 
   @override
-  _MyHomePageState createState() => _MyHomePageState();
+  State<MyHomePage> createState() => _MyHomePageState();
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  int _counter = 0;
+  void _incrementCounter() {
+    setState(() {
+      _counter++;
+    });
+    Async().asynctest1();
+    Async().asynctest2();
+    Async().asynctest3();
+    Async().asynctest4();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -69,18 +73,20 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
+          children: [
+            const Text('You have pushed the button this many times:'),
             Text(
-              AppLocalizations.of(context)!.hello("kyonot"),
-            ),
-            Text(
-              AppLocalizations.of(context)!.allow,
-            ),
-            Text(
-              AppLocalizations.of(context)!.deny,
-            ),
+              '$_counter',
+              key: const Key('counter'),
+              style: Theme.of(context).textTheme.headline4,
+            )
           ],
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _incrementCounter,
+        tooltip: 'Increment',
+        child: const Icon(Icons.add),
       ),
     );
   }

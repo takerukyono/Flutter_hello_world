@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:hello_world/StreamAndBLoC/bussiness_logic.dart';
+import 'dart:async';
 
 void main() {
   runApp(const MyApp());
@@ -27,16 +27,6 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
       ),
       home: const MyHomePage(title: 'Flutter Demo Home Page'),
-      localizationsDelegates: const [
-        AppLocalizations.delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-      supportedLocales: const [
-        Locale('ja', ''),
-        Locale('en', ''),
-      ],
     );
   }
 }
@@ -60,6 +50,37 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  int _counter = 0;
+  var intStream = StreamController<int>();
+  var stringStream = StreamController<String>.broadcast();
+  var generator = Generator();
+  var coordinator = Coordinator();
+  var consumer = Consumer();
+
+  void _incrementCounter() {
+    generator.generate();
+    setState(() {
+      _counter++;
+    });
+  }
+
+  @override
+  void initState() {
+    generator.init(intStream);
+    coordinator.init(intStream, stringStream);
+    consumer.init(stringStream);
+    coordinator.coorinate();
+    consumer.consume();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    intStream.close();
+    stringStream.close();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -69,18 +90,28 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
+          children: [
+            const Text('You have pushed the button this many times:'),
             Text(
-              AppLocalizations.of(context)!.hello("kyonot"),
+              '$_counter',
+              key: const Key('counter'),
+              style: Theme.of(context).textTheme.headline4,
             ),
-            Text(
-              AppLocalizations.of(context)!.allow,
-            ),
-            Text(
-              AppLocalizations.of(context)!.deny,
+            StreamBuilder<String>(
+              stream: stringStream.stream,
+              initialData: "",
+              builder: (context, snapshot) {
+                return Text('RANDOM : ${snapshot.data}',
+                    style: Theme.of(context).textTheme.headline4);
+              },
             ),
           ],
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _incrementCounter,
+        tooltip: 'Increment',
+        child: const Icon(Icons.add),
       ),
     );
   }
